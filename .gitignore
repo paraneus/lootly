@@ -1,0 +1,6 @@
+venv/
+lootly.db
+__pycache__/
+*.pyc
+.env
+data/

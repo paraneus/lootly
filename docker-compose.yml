@@ -1,0 +1,12 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - lootly_data:/app/data
+    restart: always
+    env_file:
+      - .env
+volumes:
+  lootly_data:

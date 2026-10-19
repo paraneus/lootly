@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lootly</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --bg3: #f0f0ee;
+    --br: #e8e8e6;
+    --text: #111111;
+    --sub: #999999;
+    --acc: #06b6d4;
+    --acc-dim: #ecfeff;
+    --online: #10b981;
+    --offline: #ef4444;
+  }
+
+  .dark {
+    --bg: #0e0e0e;
+    --bg2: #161616;
+    --bg3: #1e1e1e;
+    --br: #272727;
+    --text: #f0f0f0;
+    --sub: #555555;
+    --acc: #22d3ee;
+    --acc-dim: #0c2a30;
+    --online: #00ff88;
+    --offline: #ff4444;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg2);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    transition: background-color .3s;
+  }
+
+  .app {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg);
+      border-radius: 18px;
+      border: 1px solid var(--br);
+      overflow: hidden;
+      transition: all .3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 80vh;
+  }
+
+  /* HEADER */
+  .hdr {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 3px solid var(--acc);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Fira Code', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .logo span { color: var(--acc); }
+  .tog {
+    background: var(--bg3);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--sub);
+    transition: .2s;
+  }
+  .tog:hover { color: var(--text); }
+
+  /* META */
+  .meta {
+    padding: 1rem 1.5rem 0.5rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--sub);
+  }
+  .meta b { color: var(--text); font-weight: 500; }
+
+  .list {
+    padding: 0.25rem 0;
+    flex: 1;
+  }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 1.5rem;
+    border-bottom: 1px solid var(--br);
+    transition: background-color .15s;
+    position: relative;
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--bg2); }
+
+  .cb {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--sub);
+    cursor: pointer;
+    user-select: none;
+    transition: color .2s;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .cb.done { color: var(--acc); }
+
+  .iinfo { flex: 1; min-width: 0; }
+  .iname {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text);
+    transition: all .2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .iname.done {
+    color: var(--sub);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+  .itag {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--sub);
+    margin-top: 2px;
+  }
+
+  .menu-wrap { position: relative; flex-shrink: 0; }
+  .dots {
+    font-size: 15px;
+    color: var(--br);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: .15s;
+    user-select: none;
+    display: block;
+    margin-top: 1px;
+  }
+  .dots:hover { background: var(--bg3); color: var(--sub); }
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 24px;
+    background: var(--bg);
+    border: 1px solid var(--br);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 10;
+    min-width: 130px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+  .dropdown button {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color .15s;
+  }
+  .dropdown button:hover { background: var(--bg2); }
+  .dropdown button.danger { color: var(--offline); }
+
+  /* EDIT OVERLAY */
+  .overlay {
+    padding: 1rem 1.5rem;
+    background: var(--acc-dim);
+    border-top: 1px solid var(--br);
+    border-bottom: 1px solid var(--br);
+  }
+  .overlay-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--acc);
+    margin-bottom: 8px;
+  }
+  .overlay-row { display: flex; gap: 8px; }
+  .overlay-inp {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--acc);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    outline: none;
+  }
+  .overlay-save {
+    background: var(--acc);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .overlay-save:hover { opacity: .85; }
+  .overlay-cancel {
+    background: none;
+    border: 1px solid var(--br);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--sub);
+    cursor: pointer;
+  }
+
+  /* INPUT */
+  .inp-area {
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--br);
+  }
+  .inp {
+    flex: 1;
+    background: var(--bg2);
+    border: 1.5px solid var(--br);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s;
+  }
+  .inp::placeholder { color: var(--sub); }
+  .inp:focus { border-color: var(--acc); background: var(--bg); }
+  .btn {
+    background: var(--acc);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn:active { transform: scale(.97); }
+
+  /* FOOTER */
+  .ftr {
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid var(--br);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ws {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--sub);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+.clear-btn {
+    background: none;
+    border: none;
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--sub);
+    cursor: pointer;
+    transition: color .2s;
+}
+.clear-btn:hover { color: var(--offline); }
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--online);
+    transition: background-color .3s;
+}
+.dot.online {
+    animation: blink 2s infinite;
+    box-shadow: 0 0 3px 1px var(--online);
+}
+.dot.offline {
+    background: var(--offline);
+    box-shadow: 0 0 3px 1px var(--offline);
+}
+[v-cloak] { display: none; }
+</style>
+</head>
+<body>
+<div id="app" class="app" v-cloak>
+
+<div class="hdr" v-if="!showLogin">
+    <div class="logo">lootly<span>.</span></div>
+    <div style="display:flex; gap:8px; align-items:center;">
+        <div class="user-menu-wrap" style="position:relative;">
+            <span style="font-size:11px; color:var(--acc); font-family:'Fira Code',monospace; cursor:pointer;" @click="showUserMenu = !showUserMenu">{{ username }} ▾</span>
+            <div v-if="showUserMenu" style="position:absolute; right:0; top:24px; background:var(--bg); border:1px solid var(--br); border-radius:10px; overflow:hidden; min-width:160px; box-shadow:0 4px 20px rgba(0,0,0,0.1); z-index:20;">
+                <button @click="showProfile=true; showUserMenu=false" style="display:block; width:100%; padding:10px 14px; background:none; border:none; text-align:left; font-size:13px; font-family:'Inter',sans-serif; color:var(--text); cursor:pointer;">Profile</button>
+                <button @click="showInvite=true; showUserMenu=false" style="display:block; width:100%; padding:10px 14px; background:none; border:none; text-align:left; font-size:13px; font-family:'Inter',sans-serif; color:var(--text); cursor:pointer;">Invite user</button>
+                <button @click="clearHistory(); showUserMenu=false" style="display:block; width:100%; padding:10px 14px; background:none; border:none; text-align:left; font-size:13px; font-family:'Inter',sans-serif; color:var(--text); cursor:pointer;">Clear history</button>
+                <button @click="logout" style="display:block; width:100%; padding:10px 14px; background:none; border:none; text-align:left; font-size:13px; font-family:'Inter',sans-serif; color:var(--offline); cursor:pointer;">Logout</button>
+            </div>
+        </div>
+                <button class="tog" @click="toggleTheme">{{ dark ? '☀' : '☾' }}</button>
+    </div>
+</div>
+
+  <div v-if="showLogin" style="padding:2rem 1.5rem;">
+    <div class="logo" style="margin-bottom:1.5rem;">lootly<span>.</span></div>
+
+    <div v-if="!showRegister">
+      <div style="margin-bottom:1rem;">
+        <input class="inp" style="width:100%; margin-bottom:8px;"
+          v-model="loginForm.username" placeholder="username"
+          @keyup.enter="login">
+        <input class="inp" style="width:100%;" type="password"
+          v-model="loginForm.password" placeholder="password"
+          @keyup.enter="login">
+      </div>
+      <button class="btn" style="width:100%; margin-bottom:8px;" @click="login">Sign in</button>
+      <div style="text-align:center; font-size:12px; color:var(--sub);">
+        No account?
+        <span style="color:var(--acc); cursor:pointer;" @click="showRegister=true">Sign up</span>
+      </div>
+    </div>
+
+    <div v-if="showRegister">
+      <div style="margin-bottom:1rem;">
+        <input class="inp" style="width:100%; margin-bottom:8px;"
+          v-model="registerForm.username" placeholder="username">
+        <input class="inp" style="width:100%; margin-bottom:8px;"
+          v-model="registerForm.email" placeholder="email">
+        <input class="inp" style="width:100%;" type="password"
+          v-model="registerForm.password" placeholder="password">
+      </div>
+      <button class="btn" style="width:100%; margin-bottom:8px;" @click="register">Create account</button>
+      <div style="text-align:center; font-size:12px; color:var(--sub);">
+        Already have an account?
+        <span style="color:var(--acc); cursor:pointer;" @click="showRegister=false">Sign in</span>
+      </div>
+    </div>
+
+    <div v-if="authError" style="margin-top:12px; font-size:12px; color:var(--offline); text-align:center;">
+      {{ authError }}
+    </div>
+  </div>
+
+  <div v-if="!showLogin" style="display:flex; flex-direction:column; flex:1;">
+    <div class="meta">
+      <b>{{ remaining }}</b> items remaining
+    </div>
+
+    <div class="list">
+      <div class="item" v-for="item in items" :key="item.id">
+        <span class="cb" :class="{done: item.checked}" @click="toggleCheck(item)">
+          {{ item.checked ? '[x]' : '[ ]' }}
+        </span>
+        <div class="iinfo">
+          <div class="iname" :class="{done: item.checked}">{{ item.name }}</div>
+          <div class="itag" v-if="item.category">{{ item.category }}</div>
+        </div>
+        <div class="menu-wrap">
+          <span class="dots" @click="toggleMenu(item.id)">⋯</span>
+          <div class="dropdown" v-if="openMenuId === item.id">
+            <button @click="startEdit(item)">Edit</button>
+            <button class="danger" @click="deleteItem(item.id)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" v-if="editingItem">
+      <div class="overlay-label">// editing item</div>
+      <div class="overlay-row">
+        <input class="overlay-inp" v-model="editingItem.name" @keyup.enter="saveEdit" autofocus>
+        <button class="overlay-save" @click="saveEdit">Save</button>
+        <button class="overlay-cancel" @click="editingItem = null">✕</button>
+      </div>
+    </div>
+
+    <div class="inp-area">
+      <div style="flex:1; position:relative;">
+        <input class="inp" style="width:100%" v-model="newItemName"
+          placeholder="add item..."
+          @keyup.enter="addItem(newItemName)"
+          @input="filterSuggestions">
+        <div v-if="suggestions.length" style="position:absolute; bottom:100%; left:0; right:0; background:var(--bg); border:1px solid var(--br); border-radius:10px; overflow:hidden; z-index:10; margin-bottom:4px;">
+          <div v-for="s in suggestions" :key="s.id"
+            @click="newItemName = s.name; suggestions = []"
+            style="padding:9px 14px; font-size:13px; cursor:pointer; color:var(--text);"
+            @mouseover="event.target.style.background='var(--bg2)'"
+            @mouseleave="event.target.style.background=''">
+            {{ s.name }}
+          </div>
+        </div>
+      </div>
+      <button class="btn" @click="addItem(newItemName)">add</button>
+    </div>
+
+    <div class="ftr">
+      <div class="ws">
+        <div class="dot" :class="wsConnected ? 'online' : 'offline'"></div>
+        {{ wsConnected ? 'live sync' : 'offline' }}
+      </div>
+      <button class="clear-btn" @click="clearChecked">clear checked</button>
+      <div class="ws">{{ items.length }} items</div>
+    </div>
+  </div>
+
+  <!-- Invite Overlay -->
+<div v-if="showInvite" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:100;">
+    <div style="background:var(--bg); border-radius:16px; padding:1.5rem; width:320px; border:1px solid var(--br);">
+        <div style="font-family:'Fira Code',monospace; font-size:11px; color:var(--acc); margin-bottom:1rem;">// invite user</div>
+        <input class="inp" style="width:100%; margin-bottom:8px;" v-model="inviteForm.username" placeholder="username">
+        <input class="inp" style="width:100%; margin-bottom:8px;" v-model="inviteForm.email" placeholder="email">
+        <input class="inp" style="width:100%; margin-bottom:8px;" type="password" v-model="inviteForm.password" placeholder="password">
+        <div v-if="inviteError" style="font-size:12px; color:var(--offline); margin-bottom:8px;">{{ inviteError }}</div>
+        <div v-if="inviteSuccess" style="font-size:12px; color:var(--online); margin-bottom:8px;">{{ inviteSuccess }}</div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn" style="flex:1;" @click="inviteUser">Create</button>
+            <button class="overlay-cancel" @click="showInvite=false; inviteError=''; inviteSuccess='';">✕</button>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Overlay -->
+<div v-if="showProfile" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:100;">
+    <div style="background:var(--bg); border-radius:16px; padding:1.5rem; width:320px; border:1px solid var(--br);">
+        <div style="font-family:'Fira Code',monospace; font-size:11px; color:var(--acc); margin-bottom:1rem;">// profile</div>
+        <div style="font-size:13px; color:var(--text); margin-bottom:1.5rem; font-weight:500;">{{ username }}</div>
+        
+        <div style="font-family:'Fira Code',monospace; font-size:10px; color:var(--sub); margin-bottom:8px;">// change password</div>
+        <input class="inp" style="width:100%; margin-bottom:8px;" type="password" v-model="pwForm.old_password" placeholder="current password">
+        <input class="inp" style="width:100%; margin-bottom:8px;" type="password" v-model="pwForm.new_password" placeholder="new password">
+        <input class="inp" style="width:100%; margin-bottom:8px;" type="password" v-model="pwForm.confirm_password" placeholder="confirm new password">
+        
+        <div v-if="pwError" style="font-size:12px; color:var(--offline); margin-bottom:8px;">{{ pwError }}</div>
+        <div v-if="pwSuccess" style="font-size:12px; color:var(--online); margin-bottom:8px;">{{ pwSuccess }}</div>
+        
+        <div style="display:flex; gap:8px;">
+            <button class="btn" style="flex:1;" @click="changePassword">Save</button>
+            <button class="overlay-cancel" @click="showProfile=false; pwError=''; pwSuccess='';">✕</button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const API_URL = 'https://lootly.nerdcave.space'
+const WS_URL  = 'wss://lootly.nerdcave.space/ws'
+
+const { createApp } = Vue
+
+createApp({
+  data() {
+    return {
+      token: localStorage.getItem('lootly_token') || null,
+      username: localStorage.getItem('lootly_username') || null,
+      showLogin: false,
+      showRegister: false,
+      loginForm: { username: '', password: '' },
+      registerForm: { username: '', email: '', password: '' },
+      authError: '',
+      showUserMenu: false,
+      showProfile: false,
+      pwForm: { old_password: '', new_password: '', confirm_password: ''},
+      pwError: '',
+      pwSuccess: '',
+      showInvite: false,
+      inviteForm: { username: '', email: '', password: '' },
+      inviteError: '',
+      inviteSuccess: '',
+      items: [],
+      history: [],
+      suggestions: [],
+      ws: null,
+      wsConnected: false,
+      newItemName: '',
+      openMenuId: null,
+      editingItem: null,
+      dark: false
+    }
+  },
+  computed: {
+    remaining() {
+      return this.items.filter(i => !i.checked).length
+    }
+  },
+  mounted() {
+    if (!this.token) {
+        this.showLogin = true
+        return
+    }
+    this.loadItems()
+    this.loadHistory()
+    this.connectWebSocket()
+    document.addEventListener('click', this.closeMenu)
+  },
+  unmounted() {
+    document.removeEventListener('click', this.closeMenu)
+  },
+  methods: {
+    toggleTheme() {
+      this.dark = !this.dark
+      document.body.classList.toggle('dark', this.dark)
+      document.getElementById('app').classList.toggle('dark', this.dark)
+    },
+    async inviteUser() {
+      this.inviteError = ''
+      this.inviteSuccess = ''
+      const res = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify(this.inviteForm)
+      })
+      if (!res.ok) {
+          this.inviteError = 'Could not create user'
+          return
+      }
+      this.inviteSuccess = `User ${this.inviteForm.username} created!`
+      this.inviteForm = { username: '', email: '', password: '' }
+    },
+    async clearHistory() {
+      await fetch(`${API_URL}/history`, {
+          method: 'DELETE',
+          headers: {'Authorization': `Bearer ${this.token}`}
+      })
+      await this.loadHistory()
+  },
+    async login() {
+      this.authError = ''
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(this.loginForm)
+      })
+      if (!res.ok) {
+          this.authError = 'Invalid username or password'
+          return
+      }
+      const data = await res.json()
+      this.token = data.token
+      this.username = data.username
+      localStorage.setItem('lootly_token', data.token)
+      localStorage.setItem('lootly_username', data.username)
+      this.showLogin = false
+      this.loadItems()
+      this.loadHistory()
+      this.connectWebSocket()
+      document.addEventListener('click', this.closeMenu)
+    },
+    async register() {
+      this.authError = ''
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(this.registerForm)
+      })
+      if (!res.ok) {
+          this.authError = 'Registration failed'
+          return
+      }
+      this.loginForm.username = this.registerForm.username
+      this.loginForm.password = this.registerForm.password
+      await this.login()
+    },
+    logout() {
+      this.token = null
+      this.username = null
+      localStorage.removeItem('lootly_token')
+      localStorage.removeItem('lootly_username')
+      this.items = []
+      if (this.ws) this.ws.close()
+      this.showLogin = true
+      this.showRegister = false
+    },
+    async changePassword() {
+      this.pwError = ''
+      this.pwSuccess = ''
+      if (this.pwForm.new_password !== this.pwForm.confirm_password) {
+          this.pwError = 'Passwords do not match'
+          return
+      }
+      if (this.pwForm.new_password.length < 6) {
+          this.pwError = 'Password must be at least 6 characters'
+          return
+      }
+      const res = await fetch(`${API_URL}/auth/change-password`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${this.token}`
+          },
+          body: JSON.stringify({
+              old_password: this.pwForm.old_password,
+              new_password: this.pwForm.new_password
+          })
+      })
+      if (!res.ok) {
+          this.pwError = 'Wrong current password'
+          return
+      }
+      this.pwSuccess = 'Password changed!'
+      this.pwForm = { old_password: '', new_password: '', confirm_password: '' }
+  },
+    async loadItems() {
+      const res = await fetch(`${API_URL}/items`, {
+        headers: {'Authorization': `Bearer ${this.token}`}
+      })
+      if (res.status === 401) {
+        this.logout()
+        return
+      }
+      this.items = await res.json()
+    },
+    connectWebSocket() {
+      this.ws = new WebSocket(WS_URL)
+      this.ws.onopen = () => {
+        this.wsConnected = true
+        this.ws.send('hello')
+      }
+      this.ws.onclose = () => {
+        this.wsConnected = false
+        setTimeout(() => this.connectWebSocket(), 3000)
+      }
+      this.ws.onmessage = (event) => {
+        this.items = JSON.parse(event.data)
+      }
+    },
+    async addItem(name) {
+      if (!name.trim()) return
+      this.suggestions = [] 
+      const res = await fetch(`${API_URL}/items`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({name: name.trim()})
+      })
+      if (!res.ok) return
+      this.newItemName = ''
+    },
+    async deleteItem(id) {
+      this.openMenuId = null
+      await fetch(`${API_URL}/items/${id}`, {
+        method: 'DELETE',
+        headers: {'Authorization': `Bearer ${this.token}`}
+      })
+    },
+    async toggleCheck(item) {
+      await fetch(`${API_URL}/items/${item.id}`, {
+        method: 'PATCH',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({checked: !item.checked})
+      })
+    },
+    toggleMenu(id) {
+      this.openMenuId = this.openMenuId === id ? null : id
+    },
+    closeMenu(e) {
+      if (!e.target.closest('.menu-wrap')) this.openMenuId = null
+      if (!e.target.closest('.inp-area')) this.suggestions = []
+      if (!e.target.closest('.user-menu-wrap')) this.showUserMenu = false
+    },
+    startEdit(item) {
+      this.editingItem = { id: item.id, name: item.name }
+      this.openMenuId = null
+    },
+    async saveEdit() {
+      await fetch(`${API_URL}/items/${this.editingItem.id}`, {
+        method: 'PATCH',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({name: this.editingItem.name})
+      })
+      this.editingItem = null
+    },
+    async loadHistory() {
+      const res = await fetch(`${API_URL}/history`, {
+        headers: {'Authorization': `Bearer ${this.token}`}
+      })
+      if (res.status === 401) {
+        this.logout()
+        return
+      }
+      this.history = await res.json()
+    },
+    filterSuggestions() {
+      if (!this.newItemName.trim()) {
+        this.suggestions = []
+        return
+      }
+      this.suggestions = this.history.filter(h =>
+        h.name.toLowerCase().startsWith(this.newItemName.toLowerCase())
+      )
+    },
+    async clearChecked() {
+    await fetch(`${API_URL}/items/clear-checked`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`
+      },
+    })
+    }
+  }
+}).mount('#app')
+</script>
+</body>
+</html>
