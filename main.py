@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware #später löschen
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from typing import Optional
@@ -255,3 +256,7 @@ async def delete_history(current_user: User = Depends(get_current_user)):
             session.delete(h)
         session.commit()
         return {"deleted": len(all_history)}
+    
+@app.get("/health")
+async def health_check():
+    return JSONResponse(content={"status": "healthy"}, status_code=200)
