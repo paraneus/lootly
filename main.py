@@ -6,10 +6,8 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from typing import Optional
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from jose import jwt
 import uuid
 import json
-import os
 
 app = FastAPI()
 
@@ -21,8 +19,6 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"]
 )
 
-SECRET_KEY = os.environ["SECRET_KEY"]
-ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 24 * 90
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")

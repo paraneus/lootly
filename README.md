@@ -27,16 +27,6 @@ and run it on my own server for daily use.
 
 ## Run
 
-Create a `.env` file (see `env.example`):
-
-```bash
-cp env.example .env
-# put a random secret into .env, e.g.:
-python3 -c "import secrets; print(secrets.token_hex(32))"
-```
-
-Then:
-
 ```bash
 docker compose up -d --build
 ```

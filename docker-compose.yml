@@ -6,7 +6,5 @@ services:
     volumes:
       - lootly_data:/app/data
     restart: always
-    env_file:
-      - .env
 volumes:
   lootly_data:
