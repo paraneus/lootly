@@ -9,7 +9,8 @@ and run it on my own server for daily use.
 ## Features
 
 - Shared shopping list with realtime sync (WebSockets)
-- Login with username and password (JWT, argon2 password hashing)
+- Health check endpoint (`/health`) for monitoring
+- Login with username and password (session tokens, argon2 password hashing)
 - Invite-only: new accounts can only be created by a logged-in user
 - Autocomplete based on previously added items
 - Item history
@@ -21,7 +22,7 @@ and run it on my own server for daily use.
 | Backend  | Python, FastAPI, SQLModel, SQLite      |
 | Frontend | Vue 3, single HTML file                |
 | Realtime | WebSockets                             |
-| Auth     | JWT (python-jose), argon2 (passlib)    |
+| Auth     | Session tokens stored in the database, passwords hashed with argon2  |
 | Deploy   | Docker Compose behind nginx with HTTPS |
 
 ## Run
