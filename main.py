@@ -148,6 +148,19 @@ def change_password(data: PasswordChange, current_user: User = Depends(get_curre
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    token = await websocket.receive_text()
+
+    with Session(engine) as session:
+        user_session = session.exec(
+            select(UserSession).where(
+                UserSession.token == token,
+                UserSession.expires_at > datetime.utcnow()
+            )
+        ).first()
+    if not user_session:
+        await websocket.close(code=1008)
+        return
+
     connected_clients.append(websocket)
     try:
         while True:
