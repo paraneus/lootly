@@ -655,7 +655,7 @@ createApp({
       this.ws = new WebSocket(WS_URL)
       this.ws.onopen = () => {
         this.wsConnected = true
-        this.ws.send('this.token')
+        this.ws.send(this.token)
       }
       this.ws.onclose = () => {
         this.wsConnected = false
